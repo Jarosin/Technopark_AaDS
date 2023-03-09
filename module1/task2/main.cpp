@@ -13,25 +13,21 @@ int find_borders(int &start, int &end, int *A, int n)
             end = n - 1;
             break;
         }
-    }
+    }    
     return 0;
 }
 
 int binary_search(int &start, int &end, int *A)
 {
-    if (start == 0)
-    {
-        return A[0] > A[1] ? A[0] : A[1];
-    }
-    while (start != end)
+    while (A[start] < A[start + 1])
     {
         int middle = (start + end) / 2;
-        if (A[middle - 1] > A[middle])
+        if (A[middle] > A[middle + 1])
         {
-            end = middle -1;
+            end = middle;
         }
         else
-            start = middle;
+            start = middle + 1;
     }
     return start;
 }
@@ -48,6 +44,7 @@ int main()
 
     int start, end;
     find_borders(start, end, A, n);
+
     int res = binary_search(start, end, A);
     std::cout << res;
     delete[] A;
