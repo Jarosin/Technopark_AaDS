@@ -19,7 +19,7 @@ int find_borders(int &start, int &end, int *A, int n)
 
 int binary_search(int &start, int &end, int *A)
 {
-    while (A[start] < A[start + 1])
+    while (start != end && A[start] < A[start + 1])
     {
         int middle = (start + end) / 2;
         if (A[middle] > A[middle + 1])
