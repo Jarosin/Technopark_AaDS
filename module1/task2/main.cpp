@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-int find_borders(int &start, int &end, std::vector<int> &A)
+int find_borders(int &start, int &end, int *A, int n)
 {
     start = 0;
     end = 1;
@@ -10,16 +10,16 @@ int find_borders(int &start, int &end, std::vector<int> &A)
         end *= 2;
         if (A[end] < A[end - 1] || A[start] > A[start + 1])
             break;
-        if (end > A.size() - 1)
+        if (end > n - 1)
         {
-            end = A.size() - 1;
+            end = n - 1;
             break;
         }
     }
     return 0;
 }
 
-int binary_search(int &start, int &end, std::vector<int> &A)
+int binary_search(int &start, int &end, int *A)
 {
     int middle = (start + end) / 2;
     while (start != end)
@@ -38,18 +38,18 @@ int binary_search(int &start, int &end, std::vector<int> &A)
 
 int main()
 {
-    std::vector<int> A;
-    int n, temp;
+    int n;
     std::cin >> n;
+    int *A = new int[n];
     for (int i = 0; i < n; i++)
     {
-        std::cin >> temp;
-        A.push_back(temp);
+        std::cin >> A[i];
     }
 
     int start, end;
-    find_borders(start, end, A);
+    find_borders(start, end, A, n);
     int res = binary_search(start, end, A);
     std::cout << res;
+    delete[] A;
     return 0;
 }
