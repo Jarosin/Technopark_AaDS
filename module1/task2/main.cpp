@@ -39,12 +39,12 @@ int binary_search(int &start, int &end, std::vector<int> &A)
 int main()
 {
     std::vector<int> A;
-    int n;
+    int n, temp;
     std::cin >> n;
-    A.resize(n);
     for (int i = 0; i < n; i++)
     {
-        std::cin >> A[i];
+        std::cin >> temp;
+        A.push_back(temp);
     }
 
     int start, end;
