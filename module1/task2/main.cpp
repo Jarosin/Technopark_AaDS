@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 int find_borders(int &start, int &end, int *A, int n)
 {
     start = 0;
