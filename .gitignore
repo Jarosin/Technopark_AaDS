@@ -30,4 +30,4 @@
 *.exe
 *.out
 *.app
-module1/task1/main
+main
