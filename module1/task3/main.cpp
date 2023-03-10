@@ -100,11 +100,39 @@ class Deque
 int main()
 {
     Deque deq;
-    for (int i = 0; i < 35; i++)
+    bool res = true;
+    int n = 0;
+    std::cin >> n;
+    for (int i = 0; i < n; i++)
     {
-        deq.push_front(i);
+        int command = 0;
+        std::cin >> command;
+        int temp = 0;
+        switch(command)
+        {
+            case(1):
+                std::cin >> temp;
+                deq.push_front(temp);
+                break;
+            case(2):
+                std::cin >> temp;
+                if (deq.pop_front() != temp)
+                    res = false;
+                break;
+            case(3):
+                std::cin >> temp;
+                deq.push_back(temp);
+                break;
+            case(4):
+                std::cin >> temp;
+                if (deq.pop_back() != temp)
+                    res = false;
+                break;
+        }
     }
-    for (int i = 0; i < 35; i++)
-        std::cout << deq.pop_back() << " ";
+    if (res)
+        std::cout << "YES";
+    else
+        std::cout << "NO";
     return 0;
 }
