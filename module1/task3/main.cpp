@@ -9,8 +9,8 @@ class Deque
             capacity = 2;
             buf = new int[capacity];
             size = 0;
-            start = buf;
-            end = buf + 1;
+            start = buf + 1;
+            end = buf;
         }
         ~Deque()
         {
@@ -20,8 +20,8 @@ class Deque
         {
             if (size == 0)
             {
-                start = buf;
-                end = buf + 1;
+                start = buf + 1;
+                end = buf;
             }
             if (size + 1 > capacity)
                 grow();
@@ -59,8 +59,8 @@ class Deque
         {
             if (size == 0)
             {
-                start = buf;
-                end = buf + 1;
+                start = buf + 1; 
+                end = buf;
             }
             if (size + 1 > capacity)
                 grow();
@@ -94,14 +94,17 @@ class Deque
             buf = new_buf;
             start = new_buf;
             size = fin - new_buf;
-            end = new_buf + size + 1;
+            end = new_buf + size - 1;
         }
 };
 int main()
 {
     Deque deq;
-    deq.push_front(44);
-    deq.push_back(50);
-    std::cout << deq.pop_front() << std::endl;
+    for (int i = 0; i < 35; i++)
+    {
+        deq.push_front(i);
+    }
+    for (int i = 0; i < 35; i++)
+        std::cout << deq.pop_back() << " ";
     return 0;
 }
