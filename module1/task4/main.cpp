@@ -102,9 +102,12 @@ int MergeArrays(T **aa, int *lens, int k, int n, int *res, int (*cmp)(T, T))
     Heap<Capsule<T>> solver(k);
     for (int i = 0; i < k; i++)
     { 
-        lens[i]--;
-        Capsule<T> temp(aa[i][lens[i]], i);
-        solver.Insert(temp, &CompareCapsules);
+        if (lens[i] > 0)
+        {
+            lens[i]--;
+            Capsule<T> temp(aa[i][lens[i]], i);
+            solver.Insert(temp, &CompareCapsules);
+        }
     }
     int cur = n - 1;
     for (int i = 0; i < n; i++)
@@ -129,21 +132,12 @@ int compare(int a, int b)
 }
 int main()
 {
-    if (0)
-    {
-        Capsule<int> temp(2, 3);
-        Heap<Capsule<int>> a(5);
-        a.Insert(temp, &CompareCapsules);
-        a.ExtractMax(&CompareCapsules);
-    }
     int **aa;
     int rows;
     int *lengths;
     int n = 0;
     std::cin >> rows;
     aa = new int*[rows];
-
-
     lengths = new int[rows];
     for (int i = 0; i < rows; i++)
     {
@@ -157,7 +151,7 @@ int main()
             std::cin >> aa[i][j];
         }
     }
-    int *res = new int[n];
+    int *res = new int[n];  
     MergeArrays<int>(aa, lengths, rows, n, res, &compare);
     for (int i = 0; i < n; i++)
         std::cout << res[i] << " ";
@@ -170,3 +164,9 @@ int main()
     delete[] lengths;
     return 0;
 }
+/*3
+2
+1 2
+1
+5
+0*/
