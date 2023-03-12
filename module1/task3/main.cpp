@@ -1,6 +1,5 @@
 #include <iostream>
 
-//учесть возможность пустоты дека
 class Deque
 {
     public:
