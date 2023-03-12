@@ -49,9 +49,7 @@ class Heap
                 largest = right;
             if (largest != i)
             {
-                auto temp = buf[i];
-                buf[i] = buf[largest];
-                buf[largest] = buf[i];
+                std::swap(buf[largest], buf[i]);
                 siftDown(largest, cmp);
             }
         }
@@ -62,9 +60,7 @@ class Heap
             int parent = (i - 1) / 2;
             if (cmp(buf[parent], buf[i]) < 0)
             {
-                auto temp = buf[parent];
-                buf[parent] = buf[i];
-                buf[i] = temp;
+                std::swap(buf[i], buf[parent]);
                 siftUp(parent, cmp);
             }
         }
@@ -164,9 +160,15 @@ int main()
     delete[] lengths;
     return 0;
 }
-/*3
-2
-1 2
-1
-5
-0*/
+
+/*5
+3
+1 2 3
+3
+4 5 6
+3
+7 8 9
+3
+10 11 12
+3
+13 14 15*/
