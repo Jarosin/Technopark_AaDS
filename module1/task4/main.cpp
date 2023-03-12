@@ -9,54 +9,50 @@ template <typename T>
 class Heap
 {
     public:
-        Heap() 
+        Heap(int k) 
         {
-            capacity = 10;
             len = 0;
-            buf = new T[10];
+            buf = new T[k];
         };
         ~Heap() 
         {
-            free(buf);
+            delete[] buf;
         };
-        void Insert(T element, bool (*cmp)(T, T))
+        void Insert(T element, int (*cmp)(T, T))
         {
             Append(element);
-            siftUp(len - 1);
+            siftUp(len - 1, cmp);
         }
-        T ExtractMax(bool (*cmp)(T, T))
+        T ExtractMax(int (*cmp)(T, T))
         {
             len--;
             T max = buf[0];
             buf[0] = buf[len];
-            siftDown(0);
+            siftDown(0, cmp);
             return max;
         }
         T PeekMax()
         {
-            if (len == 0)
-                return
             return buf[0];
         }
     private:
         T *buf;
         int len;
-        int capacity;
         void siftDown(int i, int (*cmp)(T, T))
         {
             int largest = i;
             int left = 2 * i + 1;
             int right = 2 * i + 2;
-            if (left < size && cmp(buf[left], buf[largest]))
+            if (left < len && cmp(buf[left], buf[largest]) > 0)
                 largest = left;
-            if (right < size && cmp(buf[right], buf[largest]))
+            if (right < len && cmp(buf[right], buf[largest]) > 0)
                 largest = right;
             if (largest != i)
             {
                 auto temp = buf[i];
                 buf[i] = buf[largest];
                 buf[largest] = buf[i];
-                siftDown(largest);
+                siftDown(largest, cmp);
             }
         }
         void siftUp(int i, int (*cmp)(T, T))
@@ -64,78 +60,90 @@ class Heap
             if (i == 0)
                 return;
             int parent = (i - 1) / 2;
-            if (cmp(buf[parent], buf[i]))
+            if (cmp(buf[parent], buf[i]) < 0)
             {
                 auto temp = buf[parent];
                 buf[parent] = buf[i];
                 buf[i] = temp;
-                siftUp(parent);
+                siftUp(parent, cmp);
             }
         }
-        void grow()
-        {
-            T new_buf = new T[capacity * 2];
-            for (int i = 0; i < len; i++)
-            {
-                new_buf[i] = buf[i];
-            }
-            capacity *= 2;
-            free(buf);
-            buf = new_buf;
-        };
         void Append(T new_el)
         {
-            if (len >= capacity)
-                grow();
             buf[len] = new_el;
             len++;
         }
 };
 
-/*template <typename T>
+template <typename T>
 class Capsule
 {
     public:
         T data;
         int arr_number;
-        Capsule(T &data, int arr_number)
+        Capsule(T data, int arr_number)
         {
             this->data = data;
             this->arr_number = arr_number;
         }
+        Capsule(){};
         ~Capsule(){};
-};*/
-
+};
+template <typename T>
+int CompareCapsules(Capsule<T> a, Capsule<T> b)
+{
+    return a.data - b.data;
+}
 //два варианта: либо запоминать номер массива с самим элементом(оберкта), либо создать массив, хранящий последний изъятый элемент
 //Проблема массива отслеживания - при повторении одного элемента в нескольких массивах будут проблемы
 template <typename T>
-T* MergeArrays(T **aa, int *lens, int k, int n, int (*cmp)(T, T))
+int MergeArrays(T **aa, int *lens, int k, int n, int *res, int (*cmp)(T, T))
 {
-    Heap<T> solver;
-    T *last_el = new T[k];
+    Heap<Capsule<T>> solver(k);
     for (int i = 0; i < k; i++)
     { 
         lens[i]--;
-        last_el[i] = aa[i][lens[i]];
-        solver.Insert(last_el[i]);
+        Capsule<T> temp(aa[i][lens[i]], i);
+        solver.Insert(temp, &CompareCapsules);
     }
-    T *res = new T[n];
+    int cur = n - 1;
     for (int i = 0; i < n; i++)
     {
-        T max = solver.ExtractMax();
-        for (int i = 0; i < k; i++)
+        Capsule<T> temp = solver.ExtractMax(&CompareCapsules);
+        res[cur] = temp.data;
+        cur--;
+        int arr_number = temp.arr_number;
+        if (lens[arr_number] > 0)
         {
-            if (last_el[i])
+            lens[arr_number]--;
+            Capsule<T> temp(aa[arr_number][lens[arr_number]], arr_number);
+            solver.Insert(temp, &CompareCapsules);
         }
     }
+    return 0;
+}
+
+int compare(int a, int b)
+{
+    return a - b;
 }
 int main()
 {
+    if (0)
+    {
+        Capsule<int> temp(2, 3);
+        Heap<Capsule<int>> a(5);
+        a.Insert(temp, &CompareCapsules);
+        a.ExtractMax(&CompareCapsules);
+    }
     int **aa;
     int rows;
     int *lengths;
+    int n = 0;
     std::cin >> rows;
     aa = new int*[rows];
+
+
     lengths = new int[rows];
     for (int i = 0; i < rows; i++)
     {
@@ -143,21 +151,22 @@ int main()
         std::cin >> columns; 
         aa[i] = new int[columns];
         lengths[i] = columns;
+        n += columns;
         for (int j = 0; j < columns; j++)
         {
             std::cin >> aa[i][j];
         }
     }
+    int *res = new int[n];
+    MergeArrays<int>(aa, lengths, rows, n, res, &compare);
+    for (int i = 0; i < n; i++)
+        std::cout << res[i] << " ";
+    delete[] res;
     for (int i = 0; i < rows; i++)
     {
-        for (int j = 0; j < lengths[i]; j++)
-            std::cout << aa[i][j] << " ";
+        delete[] aa[i];
     }
-
-    for (int i = 0; i < rows; i++)
-    {
-        free(aa[i]);
-    }
-    free(aa);
+    delete[] aa;
+    delete[] lengths;
     return 0;
 }
