@@ -6,6 +6,18 @@
 В каждый момент времени может показываться только одна реклама. Считается, что реклама показывается мгновенно. Если реклама показывается в момент ухода или прихода, то считается, что посетитель успел её посмотреть. Требуется определить минимальное число показов рекламы.
 */
 #include <iostream>
+
+class Visit
+{
+    public:
+        int start, end;
+        Visit(int start, int end)
+        {
+            this->start = start;
+            this->end = end;
+        }
+        Visit(){}
+};
 template<typename T>
 int MergeSort(T* arr, int len, int (*cmp)(T, T))
 {
@@ -56,17 +68,70 @@ int compare(int a, int b)
 {
     return a - b;
 }
+int CompareVisits(Visit a, Visit b)
+{
+    //сравниваем время(приход >> уход)
+    if (a.start > b.start)
+        return 1;
+    if (a.start < b.start)
+        return -1;
+    if (a.end < b.end)
+        return -1;
+    if (a.end > b.end)
+        return 1;
+    return 0;
+}
+int CountAds(Visit *visits, int len)
+{
+    int cur = 0;
+    MergeSort(visits, len, &CompareVisits);
+    //массив максимально наложенных визитов(всегда меньше либо равен начальному)
+    Visit *res = new Visit[len];
+    int ans = 0;
+    //возможно скопирует и создаст неожиданные сайд эффекты
+    res[0] = visits[0];
+    for (int i = 0; i < len; i++)
+    {
+        //начало только растет(ибо упорядочено)
+        //так что если начало следующего меньше текущего конечно, то сужаем текущий
+        if (res[cur].end > visits[i].start)
+        {
+            res[cur].start = visits[i].start;
+            //если конец меньше, то уменьшаем конец
+            if (visits[i].end < res[cur].end)
+                res[cur].end = visits[i].end;
+        }
+        else
+        {
+            //если совпали начало текущего и конец предыдущего нужно на 1 меньше рекламу 
+            if (cur > 0 && res[cur].start == res[cur - 1].end)
+                ans--;
+            //если в текущий отрезок нельзя добавить новый визит, делаем новый
+            cur++;
+            //память?
+            res[cur] = visits[i];
+        }
+    }
+    //дополнительный прогон для последнего
+    if (cur > 0 && res[cur].start == res[cur - 1].end)
+        ans--;
+    delete[] res;
+    // + 1 т.к. cur был индексом
+    ans += (cur + 1) * 2;
+    return ans;
+}
 int main()
 {
     int n = 0;
+    int res = 0;
     std::cin >> n;
-    int *arr = new int[n];
+    Visit *arr = new Visit[n];
     for (int i = 0; i < n; i++)
-        std::cin >> arr[i];
-    MergeSort(arr, n, &compare);
-    for (int i = 0; i < n; i++)
-    {
-        std::cout << arr[i] << " ";
-    } 
+        std::cin >> arr[i].start >> arr[i].end;
+    res = CountAds(arr, n);
+    /*for (int i = 0; i < n; i++)
+        std::cout << arr[i].start << " " << arr[i].end << std::endl;
+    */
+    std::cout << res;
     return 0;
 }
