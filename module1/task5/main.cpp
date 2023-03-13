@@ -6,8 +6,67 @@
 В каждый момент времени может показываться только одна реклама. Считается, что реклама показывается мгновенно. Если реклама показывается в момент ухода или прихода, то считается, что посетитель успел её посмотреть. Требуется определить минимальное число показов рекламы.
 */
 #include <iostream>
+template<typename T>
+int MergeSort(T* arr, int len, int (*cmp)(T, T))
+{
+    if (len == 1)
+        return 0;
+    T* middle = arr + len / 2;
+    T* start = arr;
 
+    //сортируем половинки
+    MergeSort(start, len / 2, cmp);
+    MergeSort(middle, len - len / 2, cmp);
+
+    T *res = new T[len];
+    //обьединяем половинки
+    for (int i = 0; i < len; i++)
+    {
+        if (cmp(*start, *middle) < 1)
+        {
+            res[i] = *start;
+            start++;
+            if (start >= arr + len / 2)
+            {
+                for (int j = i + 1; j < len; j++, middle++)
+                    res[j] = *middle;    
+                break;
+            }
+
+        }
+        else
+        {
+            res[i] = *middle;
+            middle++;
+            if (middle >= arr + len)
+            {
+                for (int j = i + 1; j < len; j++, start++)
+                    res[j] = *start;  
+                break;
+            }
+
+        }
+    }
+    for (int i = 0; i < len; i++)
+        arr[i] = res[i];
+    delete[] res;
+    return 0;
+}
+int compare(int a, int b)
+{
+    return a - b;
+}
 int main()
 {
+    int n = 0;
+    std::cin >> n;
+    int *arr = new int[n];
+    for (int i = 0; i < n; i++)
+        std::cin >> arr[i];
+    MergeSort(arr, n, &compare);
+    for (int i = 0; i < n; i++)
+    {
+        std::cout << arr[i] << " ";
+    } 
     return 0;
 }
