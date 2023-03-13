@@ -93,19 +93,17 @@ int CountAds(Visit *visits, int len, int (*cmp)(Visit, Visit))
     //массив максимально наложенных визитов(всегда меньше либо равен начальному)
     Visit *res = new Visit[len];
     int ans = 0;
-    //возможно скопирует и создаст неожиданные сайд эффекты
     res[0].start = visits[0].start;
     res[0].end = visits[0].end;
     for (int i = 0; i < len; i++)
     {
         //начало только растет(ибо упорядочено)
         //так что если начало следующего меньше текущего конца, то сужаем текущий
-        if (res[cur].end > visits[i].start)
+        if (visits[i].start < res[cur].end)
         {
             res[cur].start = visits[i].start;
-            //если конец меньше, то уменьшаем конец
-            if (visits[i].end < res[cur].end)
-                res[cur].end = visits[i].end;
+            //берем меньший конец
+            res[cur].end = std::max(res[cur].end, visits[i].end, compare);
         }
         else
         {
@@ -135,8 +133,17 @@ int main()
     for (int i = 0; i < n; i++)
         std::cin >> arr[i].start >> arr[i].end;
     res = CountAds(arr, n, &CompareVisits);
-    /*for (int i = 0; i < n; i++)
-        std::cout << arr[i].start << " " << arr[i].end << std::endl;*/
+    for (int i = 0; i < n; i++)
+        std::cout << arr[i].start << " " << arr[i].end << std::endl;
     std::cout << res;
+    delete[] arr;
     return 0;
 }
+/*
+5
+1 2
+2 4
+3 20
+6 15
+7 19
+*/
