@@ -16,6 +16,11 @@ class Visit
             this->start = start;
             this->end = end;
         }
+        Visit(Visit &a)
+        {
+            start = a.start;
+            end = a.end;
+        }
         Visit(){}
 };
 template<typename T>
@@ -81,19 +86,20 @@ int CompareVisits(Visit a, Visit b)
         return 1;
     return 0;
 }
-int CountAds(Visit *visits, int len)
+int CountAds(Visit *visits, int len, int (*cmp)(Visit, Visit))
 {
     int cur = 0;
-    MergeSort(visits, len, &CompareVisits);
+    MergeSort(visits, len, cmp);
     //массив максимально наложенных визитов(всегда меньше либо равен начальному)
     Visit *res = new Visit[len];
     int ans = 0;
     //возможно скопирует и создаст неожиданные сайд эффекты
-    res[0] = visits[0];
+    res[0].start = visits[0].start;
+    res[0].end = visits[0].end;
     for (int i = 0; i < len; i++)
     {
         //начало только растет(ибо упорядочено)
-        //так что если начало следующего меньше текущего конечно, то сужаем текущий
+        //так что если начало следующего меньше текущего конца, то сужаем текущий
         if (res[cur].end > visits[i].start)
         {
             res[cur].start = visits[i].start;
@@ -108,8 +114,8 @@ int CountAds(Visit *visits, int len)
                 ans--;
             //если в текущий отрезок нельзя добавить новый визит, делаем новый
             cur++;
-            //память?
-            res[cur] = visits[i];
+            res[cur].start = visits[i].start;
+            res[cur].end = visits[i].end;
         }
     }
     //дополнительный прогон для последнего
@@ -128,10 +134,9 @@ int main()
     Visit *arr = new Visit[n];
     for (int i = 0; i < n; i++)
         std::cin >> arr[i].start >> arr[i].end;
-    res = CountAds(arr, n);
+    res = CountAds(arr, n, &CompareVisits);
     /*for (int i = 0; i < n; i++)
-        std::cout << arr[i].start << " " << arr[i].end << std::endl;
-    */
+        std::cout << arr[i].start << " " << arr[i].end << std::endl;*/
     std::cout << res;
     return 0;
 }
