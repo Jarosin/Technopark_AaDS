@@ -10,16 +10,18 @@
 class Visit
 {
     public:
-        int start, end;
+        int start, end, ads;
         Visit(int start, int end)
         {
             this->start = start;
             this->end = end;
+            ads = 0;
         }
         Visit(Visit &a)
         {
             start = a.start;
             end = a.end;
+            ads = a.ads;
         }
         Visit(){}
 };
@@ -86,6 +88,21 @@ int CompareVisits(Visit a, Visit b)
         return 1;
     return 0;
 }
+int min(int a, int b)
+{
+    return a < b ? a : b;
+}
+int ShowAd(Visit *visits, int len, int end)
+{
+    for (int i = 0; i < len; i++)
+    {
+        if (visits[i].start <= end)
+        {
+            visits[i].ads++;
+        }
+    }
+    return 0;
+}
 int CountAds(Visit *visits, int len, int (*cmp)(Visit, Visit))
 {
     int cur = 0;
@@ -93,35 +110,21 @@ int CountAds(Visit *visits, int len, int (*cmp)(Visit, Visit))
     //массив максимально наложенных визитов(всегда меньше либо равен начальному)
     Visit *res = new Visit[len];
     int ans = 0;
-    res[0].start = visits[0].start;
-    res[0].end = visits[0].end;
     for (int i = 0; i < len; i++)
-    {
-        //начало только растет(ибо упорядочено)
-        //так что если начало следующего меньше текущего конца, то сужаем текущий
-        if (visits[i].start < res[cur].end)
+    {     
+        int cur_ads = visits[i].ads;
+        if (cur_ads < 2)
         {
-            res[cur].start = visits[i].start;
-            //берем меньший конец
-            res[cur].end = std::max(res[cur].end, visits[i].end, compare);
-        }
-        else
-        {
-            //если совпали начало текущего и конец предыдущего нужно на 1 меньше рекламу 
-            if (cur > 0 && res[cur].start == res[cur - 1].end)
-                ans--;
-            //если в текущий отрезок нельзя добавить новый визит, делаем новый
-            cur++;
-            res[cur].start = visits[i].start;
-            res[cur].end = visits[i].end;
+            for (int j = 0; j < 2 - cur_ads; j++)
+            {
+                //показываем рекламу всем в промежутке текущего, делаем -j т.к. нельзя дважды показывать рекламу в одно время
+                ShowAd(visits, len, visits[i].end - j);
+                ans++;
+            }
         }
     }
-    //дополнительный прогон для последнего
-    if (cur > 0 && res[cur].start == res[cur - 1].end)
-        ans--;
     delete[] res;
     // + 1 т.к. cur был индексом
-    ans += (cur + 1) * 2;
     return ans;
 }
 int main()
@@ -133,17 +136,9 @@ int main()
     for (int i = 0; i < n; i++)
         std::cin >> arr[i].start >> arr[i].end;
     res = CountAds(arr, n, &CompareVisits);
-    for (int i = 0; i < n; i++)
-        std::cout << arr[i].start << " " << arr[i].end << std::endl;
+    /*for (int i = 0; i < n; i++)
+        std::cout << arr[i].start << " " << arr[i].end << std::endl;*/
     std::cout << res;
     delete[] arr;
     return 0;
 }
-/*
-5
-1 2
-2 4
-3 20
-6 15
-7 19
-*/
