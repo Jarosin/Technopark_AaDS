@@ -97,9 +97,9 @@ int min(int a, int b)
 {
     return a < b ? a : b;
 }
-int ShowAd(Visit *visits, int len, int end)
+int ShowAd(Visit *visits, int len, int cur, int end)
 {
-    for (int i = 0; i < len; i++)
+    for (int i = cur; i < len; i++)
     {
         if (visits[i].start <= end)
         {
@@ -121,7 +121,7 @@ int CountAds(Visit *visits, int len, int (*cmp)(Visit, Visit))
             for (int j = 0; j < 2 - cur_ads; j++)
             {
                 //показываем рекламу всем в промежутке текущего, делаем -j т.к. нельзя дважды показывать рекламу в одно время
-                ShowAd(visits, len, visits[i].end - j);
+                ShowAd(visits, len, i, visits[i].end - j);
                 ans++;
             }
         }
@@ -143,3 +143,10 @@ int main()
     delete[] arr;
     return 0;
 }
+/*
+4
+1 10
+2 3
+4 5
+6 7
+*/
