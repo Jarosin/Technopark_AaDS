@@ -107,8 +107,6 @@ int CountAds(Visit *visits, int len, int (*cmp)(Visit, Visit))
 {
     int cur = 0;
     MergeSort(visits, len, cmp);
-    //массив максимально наложенных визитов(всегда меньше либо равен начальному)
-    Visit *res = new Visit[len];
     int ans = 0;
     for (int i = 0; i < len; i++)
     {     
@@ -123,8 +121,6 @@ int CountAds(Visit *visits, int len, int (*cmp)(Visit, Visit))
             }
         }
     }
-    delete[] res;
-    // + 1 т.к. cur был индексом
     return ans;
 }
 int main()
