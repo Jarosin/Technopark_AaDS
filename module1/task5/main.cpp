@@ -23,7 +23,12 @@ class Visit
             end = a.end;
             ads = a.ads;
         }
-        Visit(){}
+        Visit()
+        {
+            start = 0;
+            end = 0;
+            ads = 0;
+        }
 };
 template<typename T>
 int MergeSort(T* arr, int len, int (*cmp)(T, T))
