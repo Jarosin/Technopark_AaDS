@@ -82,14 +82,14 @@ int compare(int a, int b)
 }
 int CompareVisits(Visit a, Visit b)
 {
-    //сравниваем время(приход >> уход)
-    if (a.start > b.start)
-        return 1;
-    if (a.start < b.start)
-        return -1;
+    //сортируем по в первую очередь концам, иначе наоборот по началам
     if (a.end < b.end)
         return -1;
     if (a.end > b.end)
+        return 1;
+    if (a.start > b.start)
+        return -1;
+    if (a.start < b.start)
         return 1;
     return 0;
 }
@@ -143,10 +143,3 @@ int main()
     delete[] arr;
     return 0;
 }
-/*
-4
-1 10
-2 3
-4 5
-6 7
-*/
