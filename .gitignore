@@ -31,3 +31,4 @@
 *.out
 *.app
 main
+module1/.vscode/tasks.json
