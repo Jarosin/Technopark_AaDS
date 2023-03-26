@@ -2,17 +2,20 @@
 Дан массив неотрицательных целых 64-разрядных чисел. Количество чисел не больше 10^6. Отсортировать массив методом MSD по битам (бинарный QuickSort).
 */
 #include <iostream>
-#include <cmath>
+int find_bit(int n, int k)
+{
+    return (n >> k) & 1;
+}
 int BinaryQuickSort(unsigned long long *start, unsigned long long *end, int bit)
 {
     if (bit < 0)
         return 0;
-    unsigned long long pivot = pow(2, bit);
-    unsigned long long *i = start, *j = end;
-    while (i <= j)
+    unsigned long long *i = start;
+    unsigned long long *j = end;
+    while (i < j)
     {
-        for (; i <= end && *i < pivot; i++) {}
-        for (; j >= start && *j >= pivot; j--) {}
+        for (; i < end && !find_bit(*i, bit); i++) {}
+        for (; j > start && find_bit(*j, bit); j--) {}
         if (i < j) {
             std::swap(*i, *j);
         }
