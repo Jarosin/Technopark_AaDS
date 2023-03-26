@@ -113,15 +113,24 @@ class Capsule
         }
 };
 template <typename T>
-int CompareCapsules(Capsule<T> a, Capsule<T> b)
+bool CompareCapsules(Capsule<T> a, Capsule<T> b)
 {
-    return a.data - b.data;
+    return a < b;
 }
 
 template <typename T>
+struct ComparatorCapsules
+{
+    bool operator()(const T& a, const T& b) const
+    {
+        return a < b;
+    }
+};
+template <typename T>
 int MergeArrays(T **matrix, int *lens, int k, int n, int *res)
 {
-    Heap<Capsule<T>> solver(k);
+    //Heap<Capsule<T>, bool (*)(Capsule<T>,Capsule<T>)> solver(k, CompareCapsules);
+    Heap<Capsule<T>, ComparatorCapsules<Capsule<T>>> solver(k);
     for (int i = 0; i < k; i++)
     { 
         if (lens[i] > 0)
