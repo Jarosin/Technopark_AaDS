@@ -23,3 +23,81 @@
 
 6_3. Реализуйте стратегию выбора опорного элемента “случайный элемент”. Функцию Partition реализуйте методом прохода двумя итераторами от начала массива к концу.
 */
+
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
+template<typename T>
+struct DefaultComparator
+{
+    bool operator()(const T& l, const T& r)
+    {
+        return l < r;
+    }
+};
+template<typename T, typename Comparator = DefaultComparator<T>>
+int Partition(T *arr, int l, int r, Comparator cmp = Comparator())
+{
+    int pivot_idx = std::rand() % (r - l) + l;
+    std::swap(arr[pivot_idx], arr[r]);
+    int i = l;
+    int j = r;
+    while (i < j)
+    {
+        for (; cmp(arr[i], arr[r]); i++) continue;
+        for (; !cmp(arr[j], arr[r]) && j > l; j--) continue;
+        if (i < j)
+        {
+            std::swap(arr[i], arr[j]);
+            i++;
+            j--;
+        }
+    }
+    std::swap(arr[i], arr[r]);
+    return i;
+}
+template<typename T, typename Comparator = DefaultComparator<T>>
+void k_stat(T *arr, int size, int k, Comparator cmp = Comparator())
+{
+    int l = 0;
+    int r = size - 1;
+    while (l < r) {
+        int m = Partition(arr, l, r);
+        if (m == k)
+        {
+            return;
+        }
+        else if (m < k)
+        {
+            l = m + 1;
+        }
+        else //m > k
+        {
+            r = m;
+        }
+    }
+}
+int main()
+{
+    int n = 0;
+    std::cin >> n;
+    int *arr = new int[n];
+    for (int i = 0; i < n; i++)
+    {
+        std::cin >> arr[i];
+    }
+    int k = static_cast<int>(floor(0.1 * n));
+    k_stat<int>(arr, n, k);
+    std::cout << arr[k] << std::endl;
+
+    k = static_cast<int>(floor(0.5 * n));
+    k_stat<int>(arr, n, k);
+    std::cout << arr[k] << std::endl;
+
+    k = static_cast<int>(floor(0.9 * n));
+    k_stat<int>(arr, n, k);
+    std::cout << arr[k] << std::endl;
+    
+    delete[] arr;
+    return 0;
+}
