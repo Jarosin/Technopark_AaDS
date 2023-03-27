@@ -25,8 +25,9 @@
 */
 
 #include <iostream>
-#include <cstdlib>
 #include <cmath>
+
+using u_long_t = unsigned long long;
 template<typename T>
 struct DefaultComparator
 {
@@ -81,21 +82,21 @@ int main()
 {
     int n = 0;
     std::cin >> n;
-    int *arr = new int[n];
+    u_long_t *arr = new u_long_t[n];
     for (int i = 0; i < n; i++)
     {
         std::cin >> arr[i];
     }
-    int k = static_cast<int>(floor(0.1 * n));
-    k_stat<int>(arr, n, k);
+    int k = static_cast<int>(0.1 * n);
+    k_stat<u_long_t>(arr, n, k);
     std::cout << arr[k] << std::endl;
 
-    k = static_cast<int>(floor(0.5 * n));
-    k_stat<int>(arr, n, k);
+    k = static_cast<int>(0.5 * n);
+    k_stat<u_long_t>(arr, n, k);
     std::cout << arr[k] << std::endl;
 
-    k = static_cast<int>(floor(0.9 * n));
-    k_stat<int>(arr, n, k);
+    k = static_cast<int>(0.9 * n);
+    k_stat<u_long_t>(arr, n, k);
     std::cout << arr[k] << std::endl;
     
     delete[] arr;
