@@ -7,25 +7,30 @@ int find_bit(unsigned long long n, int k)
 {
     return (n >> k) & 1;
 }
-int BinaryQuickSort(unsigned long long *start, unsigned long long *end, int bit)
+
+unsigned long long *Partition(unsigned long long *start, unsigned long long *end, int bit)
 {
-    if (bit < 0)
-        return 0;
     unsigned long long *i = start;
     unsigned long long *j = end;
     while (i < j)
     {
-        for (; i < end && !find_bit(*i, bit); i++) continue;
-        for (; j > start && find_bit(*j, bit); j--) continue;
+        for (; i <= end && !find_bit(*i, bit); i++) continue;
+        for (; j >= start && find_bit(*j, bit); j--) continue;
         if (i < j) {
             std::swap(*i, *j);
         }
     }
+    return j;
+}
+void BinaryQuickSort(unsigned long long *start, unsigned long long *end, int bit)
+{
+    if (bit < 0)
+        return;
+    unsigned long long *j = Partition(start, end, bit);
     if (j > start) 
         BinaryQuickSort(start, j, bit - 1);
-    if (i < end)
-        BinaryQuickSort(i, end, bit - 1);
-    return 0;
+    if (j + 1 < end)
+        BinaryQuickSort(j + 1, end, bit - 1);
 }
 template <typename T>
 int check_sorted(T *arr, int len)
