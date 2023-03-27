@@ -39,20 +39,20 @@ struct DefaultComparator
 template<typename T, typename Comparator = DefaultComparator<T>>
 int Partition(T *arr, int l, int r, Comparator cmp = Comparator())
 {
-    int pivot_idx = std::rand() % (r - l) + l;
+    int pivot_idx = std::rand() % (r - l + 1) + l;
+    T pivot = arr[pivot_idx];
+
     std::swap(arr[pivot_idx], arr[r]);
     int i = l;
-    int j = r;
-    while (i < j)
+    int j = l;
+    for (; j < r; j++)
     {
-        for (; cmp(arr[i], arr[r]); i++) continue;
-        for (; !cmp(arr[j], arr[r]) && j > l; j--) continue;
-        if (i < j)
+        if (cmp(pivot, arr[j]))
         {
-            std::swap(arr[i], arr[j]);
-            i++;
-            j--;
+            continue;
         }
+        std::swap(arr[i], arr[j]);
+        i++;
     }
     std::swap(arr[i], arr[r]);
     return i;
@@ -63,7 +63,7 @@ void k_stat(T *arr, int size, int k, Comparator cmp = Comparator())
     int l = 0;
     int r = size - 1;
     while (l < r) {
-        int m = Partition(arr, l, r);
+        int m = Partition(arr, l, r, cmp);
         if (m == k)
         {
             return;
@@ -74,7 +74,7 @@ void k_stat(T *arr, int size, int k, Comparator cmp = Comparator())
         }
         else //m > k
         {
-            r = m;
+            r = m - 1;
         }
     }
 }
@@ -87,15 +87,17 @@ int main()
     {
         std::cin >> arr[i];
     }
-    int k = static_cast<int>(0.1 * n);
+    if (n == 0)
+        return 0;
+    int k = static_cast<int>((0.1 * n));
     k_stat<u_long_t>(arr, n, k);
     std::cout << arr[k] << std::endl;
 
-    k = static_cast<int>(0.5 * n);
+    k = static_cast<int>((0.5 * n));
     k_stat<u_long_t>(arr, n, k);
     std::cout << arr[k] << std::endl;
 
-    k = static_cast<int>(0.9 * n);
+    k = static_cast<int>((0.9 * n));
     k_stat<u_long_t>(arr, n, k);
     std::cout << arr[k] << std::endl;
     
