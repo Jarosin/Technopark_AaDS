@@ -32,3 +32,4 @@
 *.app
 main
 module1/.vscode/tasks.json
+module1/.vscode/settings.json
