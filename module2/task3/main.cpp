@@ -46,13 +46,13 @@ public:
     struct Node
     {
         Node(bool leaf)
-        : leaf(leaf)
+            : leaf(leaf)
         {
         }
 
         ~Node()
         {
-            for (Node* child: children)
+            for (Node *child : children)
             {
                 delete child;
             }
@@ -60,11 +60,11 @@ public:
 
         bool leaf;
         std::vector<T> keys;
-        std::vector<Node*> children;
+        std::vector<Node *> children;
     };
 
     BTree(size_t min_degree)
-    : t(min_degree), root(nullptr)
+        : t(min_degree), root(nullptr)
     {
     }
 
@@ -97,6 +97,7 @@ public:
     {
         debugPrintInternal(root, 0);
     }
+
 private:
     void debugPrintInternal(Node *node, int indent)
     {
@@ -110,7 +111,7 @@ private:
         }
         std::cout << "]" << std::endl;
 
-        for (auto child: node->children)
+        for (auto child : node->children)
         {
             debugPrintInternal(child, indent + 4);
         }
@@ -118,42 +119,40 @@ private:
 
     bool isNodeFull(Node *node)
     {
-        return node->keys.size() == 2*t - 1;
+        return node->keys.size() == 2 * t - 1;
     }
 
     // разбить переполненного потомка index узла node
     void splitChild(Node *node, size_t index)
     {
         Node *child = node->children[index];
-        if (child->leaf)
+        Node *right = new Node(child->leaf);
+        for (int i = 0; i < child->keys.size() / 2; i++)
         {
-            Node *right = new Node(child->leaf);
-            for (int i = 0; i < child->keys.size() / 2; i++)
-            {
-                right->keys.push_back(child->keys.back());
-                child->keys.pop_back();
-            }
-            std::reverse(right->keys.begin(), right->keys.end());
-            node->children.insert(node->children.begin() + index, right);
-            node->keys.insert(node->keys.begin() + index, child->keys.back());
+            right->keys.push_back(child->keys.back());
             child->keys.pop_back();
+            if (!child->children.empty())
+            {
+                if (child->children.back()->keys.front() >= right->keys.back())
+                {
+                    right->children.push_back(child->children.back());
+                    child->children.pop_back();
+                }
+            }
         }
-        else
+        if (!child->children.empty())
         {
-            Node *right = new Node(child->leaf);
-            for (int i = 0; i < child->children.size() / 2; i++)
+            if (child->children.back()->keys.front() < right->keys.back() && child->children.back()->keys.front() > child->keys.back())
             {
                 right->children.push_back(child->children.back());
                 child->children.pop_back();
-                right->keys.push_back(child->keys.back());
-                child->keys.pop_back();
             }
-            std::reverse(right->children.begin(), right->children.end());
-            std::reverse(right->keys.begin(), right->keys.end());
-            node->children.insert(node->children.begin() + index, right);
-            node->keys.insert(node->keys.begin() + index, child->keys.back());
-            child->keys.pop_back();
         }
+        std::reverse(right->keys.begin(), right->keys.end());
+        std::reverse(right->children.begin(), right->children.end());
+        node->children.insert(node->children.begin() + index + 1, right);
+        node->keys.insert(node->keys.begin() + index, child->keys.back());
+        child->keys.pop_back();
     }
 
     // вставить ключ key в гарантированно не переполненную ноду node
@@ -242,7 +241,7 @@ void test1()
 
     std::string insertKeys = "BQLF";
     // посимвольно добавляем в дерево ключи
-    for (auto c: insertKeys)
+    for (auto c : insertKeys)
     {
         tree.Insert(c);
         std::cout << "After inserting " << c << ":" << std::endl;
@@ -251,7 +250,8 @@ void test1()
     }
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char *argv[])
+{
     test1();
     // size_t degree = 0;
     // std::cin >> degree;
