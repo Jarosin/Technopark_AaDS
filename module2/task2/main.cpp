@@ -28,17 +28,12 @@ out
 #include <stack>
 #include <memory>
 template <typename T>
-class TreeNode
+struct TreeNode
 {
-private:
-public:
     T data_;
     std::shared_ptr<TreeNode<T>> left_;
     std::shared_ptr<TreeNode<T>> right_;
     TreeNode(T data) : left_(nullptr), right_(nullptr), data_(data) {}
-    ~TreeNode()
-    {
-    }
     bool operator<(const T &data)
     {
         return data_ < data;
@@ -71,7 +66,6 @@ public:
         {
             if (!comparator_(data, cur->data_))
             {
-                // Тут добавлять надо
                 if (!cur->right_)
                 {
                     cur->right_ = std::make_shared<TreeNode<T>>(data);
