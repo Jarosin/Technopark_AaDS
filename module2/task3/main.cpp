@@ -38,6 +38,8 @@ stdout
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <queue>
+#include <stack>
 
 template <typename T>
 class BTree
@@ -98,6 +100,36 @@ public:
         debugPrintInternal(root, 0);
     }
 
+    void PrintPerLayer()
+    {
+        std::queue<Node *> print_queue, temp;
+        print_queue.push(root);
+        while (true)
+        {
+            while (!print_queue.empty())
+            {
+                Node *cur = print_queue.front();
+                print_queue.pop();
+                if (!cur->leaf)
+                {
+                    for (auto& child : cur->children)
+                        temp.push(child);
+                }
+                for (const auto& key : cur->keys)
+                {
+                    std::cout << key << " ";
+                }
+            }
+            std::cout << std::endl;
+            while (!temp.empty())
+            {
+                print_queue.push(temp.front());
+                temp.pop();
+            }
+            if (print_queue.empty())
+                break;
+        }
+    }
 private:
     void debugPrintInternal(Node *node, int indent)
     {
@@ -127,7 +159,8 @@ private:
     {
         Node *child = node->children[index];
         Node *right = new Node(child->leaf);
-        for (int i = 0; i < child->keys.size() / 2; i++)
+        auto keys_amount = child->keys.size();
+        for (int i = 0; i < keys_amount / 2; i++)
         {
             right->keys.push_back(child->keys.back());
             child->keys.pop_back();
@@ -140,6 +173,7 @@ private:
                 }
             }
         }
+        //если можем перевесить дополнительную из серединки - перевешиваем
         if (!child->children.empty())
         {
             if (child->children.back()->keys.front() < right->keys.back() && child->children.back()->keys.front() > child->keys.back())
@@ -252,14 +286,15 @@ void test1()
 
 int main(int argc, const char *argv[])
 {
-    test1();
-    // size_t degree = 0;
-    // std::cin >> degree;
-    // BTree<unsigned long> tree(degree);
-    // unsigned long new_key;
-    // while (std::cin >> new_key)
-    // {
-    //     tree.Insert(new_key);
-    // }
+    //test1();
+    size_t degree = 0;
+    std::cin >> degree;
+    BTree<unsigned long> tree(degree);
+    unsigned long new_key;
+    while (std::cin >> new_key)
+    {
+        tree.Insert(new_key);
+    }
+    tree.PrintPerLayer();
     return 0;
 }
