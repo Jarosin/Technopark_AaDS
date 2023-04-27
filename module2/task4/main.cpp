@@ -128,11 +128,8 @@ private:
             if (!right)
                 return left;
 
-            // поддерево, из которого берем элемент взамен удаляемого, выбираем на основе сравнения глубин.
-            // (берем из более глубокого)
             Node *min = findAndRemoveMin(right);
             min->left = left;
-
             return doBalance(min);
         }
 
@@ -190,7 +187,7 @@ private:
 
     void fixCount(Node *node)
     {
-        node->count = (getCount(node->left), getCount(node->right)) + 1;
+        node->count = getCount(node->left) + getCount(node->right) + 1;
     }
 
     int getBalance(Node *node)
