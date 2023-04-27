@@ -26,17 +26,23 @@ out
 
 #include <iostream>
 #include <stack>
-#include <memory>
 template <typename T>
 struct TreeNode
 {
     T data_;
-    std::shared_ptr<TreeNode<T>> left_;
-    std::shared_ptr<TreeNode<T>> right_;
+    TreeNode<T> *left_;
+    TreeNode<T> *right_;
     TreeNode(T data) : left_(nullptr), right_(nullptr), data_(data) {}
     bool operator<(const T &data)
     {
         return data_ < data;
+    }
+    ~TreeNode()
+    {
+        if (left_)
+            delete left_;
+        if (right_)
+            delete right_;
     }
 };
 template <typename T>
@@ -52,13 +58,18 @@ template <typename T, typename Comparator = DefaultComparator<T>>
 class BinaryTree
 {
 public:
-    using TreeNodePtr = std::shared_ptr<TreeNode<T>>;
+    using TreeNodePtr = TreeNode<T> *;
     BinaryTree(Comparator cmp = Comparator()) : comparator_(cmp), root_(nullptr){};
+    ~BinaryTree()
+    {
+        if (root_)
+            delete root_;
+    }
     void Insert(T data)
     {
         if (!root_)
         {
-            root_ = std::make_shared<TreeNode<T>>(data);
+            root_ = new TreeNode<T>(data);
             return;
         }
         TreeNodePtr cur = root_;
@@ -68,7 +79,7 @@ public:
             {
                 if (!cur->right_)
                 {
-                    cur->right_ = std::make_shared<TreeNode<T>>(data);
+                    cur->right_ = new TreeNode<T>(data);
                     break;
                 }
                 else
@@ -78,7 +89,7 @@ public:
             {
                 if (!cur->left_)
                 {
-                    cur->left_ = std::make_shared<TreeNode<T>>(data);
+                    cur->left_ = new TreeNode<T>(data);
                     break;
                 }
                 else
