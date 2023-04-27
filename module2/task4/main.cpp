@@ -21,26 +21,37 @@ out
 
 
 */
-// дописать компаратор
+
 template <typename T>
+class DefaultComparator
+{
+    public:
+        bool operator()(const T& left, const T& right)
+        {
+            return left < right;
+        }
+};
+
+template <typename T, typename Comparator = DefaultComparator<T>>
 class AvlTree
 {
-  struct Node
-  {
-      Node(const T &data)
-      : data(data), left(nullptr), right(nullptr), height(1)
-      {
-      }
+    struct Node
+    {
+        Node(const T &data)
+            : data(data), left(nullptr), right(nullptr), height(1), count(1)
+        {
+        }
 
-      T data;
-      Node *left;
-      Node *right;
-      size_t height;
-  };
+        size_t count;
+        T data;
+        Node *left;
+        Node *right;
+        size_t height;
+    };
 
 public:
-    AvlTree()
-    : root(nullptr)
+    AvlTree(Comparator comparator = Comparator())
+        : root(nullptr), comparator_(comparator)
     {
     }
 
@@ -59,12 +70,12 @@ public:
         Node *tmp = root;
         while (tmp)
         {
-            if (tmp->data == data)
-                return true;
-            else if (tmp->data < data)
+            if (comparator(data, tmp->data))
+                tmp = tmp->left;
+            else if (comparator(tmp->data, data))
                 tmp = tmp->right;
             else
-                tmp = tmp->left;
+                return true;
         }
         return false;
     }
@@ -72,8 +83,23 @@ public:
     {
         root = deleteInternal(root, data);
     }
+
+    T FindStat(size_t index)
+    {
+        return InternalFindStat(root, index);
+    }
+
 private:
 
+    T InternalFindStat(Node* node, size_t index)
+    {
+        if (getCount(node->left) == index)
+            return node->data;
+        if (getCount(node->left) > index)
+            return InternalFindStat(node->left, index);
+        index = index - getCount(node->left) - 1;
+        return InternalFindStat(node->right, index);
+    }
     void destroyTree(Node *node)
     {
         if (node)
@@ -84,13 +110,13 @@ private:
         }
     }
 
-    Node* deleteInternal(Node *node, const T &data)
+    Node *deleteInternal(Node *node, const T &data)
     {
         if (!node)
             return nullptr;
-        if (node->data < data)
+        if (comparator_(node->data, data))
             node->right = deleteInternal(node->right, data);
-        else if (node->data > data)
+        else if (comparator_(data, node->data))
             node->left = deleteInternal(node->left, data);
         else
         {
@@ -104,10 +130,7 @@ private:
 
             // поддерево, из которого берем элемент взамен удаляемого, выбираем на основе сравнения глубин.
             // (берем из более глубокого)
-
-            // findMin и removeMin объединить в один метод findAndRemoveMin/findAndRemoveMax
-            Node *min = findMin(right); // возвращает минимальный элемент в дереве
-            min->right = removeMin(right); // возвращает дерево, из которого удалили минимальный элемент
+            Node *min = findAndRemoveMin(right);
             min->left = left;
 
             return doBalance(min);
@@ -116,14 +139,14 @@ private:
         return doBalance(node);
     }
 
-    Node* findMin(Node *node)
+    Node *findMin(Node *node)
     {
         while (node->left)
             node = node->left;
         return node;
     }
 
-    Node* removeMin(Node *node)
+    Node *removeMin(Node *node)
     {
         if (!node->left)
             return node->right;
@@ -131,16 +154,28 @@ private:
         return doBalance(node);
     }
 
-    Node* addInternal(Node *node, const T &data)
+    Node *findAndRemoveMin(Node *node)
+    {
+        Node *min = findMin(node);    // возвращает минимальный элемент в дереве
+        min->right = removeMin(node); // возвращает дерево, из которого удалили минимальный элемент
+        return min;
+    }
+
+    Node *addInternal(Node *node, const T &data)
     {
         if (!node)
             return new Node(data);
-        if (node->data <= data)
+        if (!comparator_(data, node->data))
             node->right = addInternal(node->right, data);
         else
             node->left = addInternal(node->left, data);
 
         return doBalance(node);
+    }
+
+    size_t getCount(Node *node)
+    {
+        return node ? node->count : 0;
     }
 
     size_t getHeight(Node *node)
@@ -153,56 +188,87 @@ private:
         node->height = std::max(getHeight(node->left), getHeight(node->right)) + 1;
     }
 
+    void fixCount(Node *node)
+    {
+        node->count = (getCount(node->left), getCount(node->right)) + 1;
+    }
+
     int getBalance(Node *node)
     {
         return getHeight(node->right) - getHeight(node->left);
     }
 
-    Node* rotateLeft(Node *node)
+    Node *rotateLeft(Node *node)
     {
         Node *tmp = node->right;
         node->right = tmp->left;
         tmp->left = node;
         fixHeight(node);
+        fixCount(node);
         fixHeight(tmp);
+        fixCount(tmp);
         return tmp;
     }
 
-    Node* rotateRight(Node *node)
+    Node *rotateRight(Node *node)
     {
         Node *tmp = node->left;
         node->left = tmp->right;
         tmp->right = node;
         fixHeight(node);
+        fixCount(node);
         fixHeight(tmp);
+        fixCount(tmp);
         return tmp;
     }
 
-    Node* doBalance(Node *node)
+    Node *doBalance(Node *node)
     {
         fixHeight(node);
+        fixCount(node);
         switch (getBalance(node))
         {
-            case 2:
-            {
-                if (getBalance(node->right) < 0)
-                    node->right = rotateRight(node->right);
-                return rotateLeft(node);
-            }
-            case -2:
-            {
-                if (getBalance(node->left) > 0)
-                    node->left = rotateLeft(node->left);
-                return rotateRight(node);
-            }
-            default:
-                return node;
+        case 2:
+        {
+            if (getBalance(node->right) < 0)
+                node->right = rotateRight(node->right);
+            return rotateLeft(node);
+        }
+        case -2:
+        {
+            if (getBalance(node->left) > 0)
+                node->left = rotateLeft(node->left);
+            return rotateRight(node);
+        }
+        default:
+            return node;
         }
     }
 
     Node *root;
+    Comparator comparator_;
 };
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char *argv[])
+{
+    AvlTree<u_int> tree;
+    int num;
+    int k;
+    int n;
+    std::cin >> n;
+    for (int i = 0; i < n; i++)
+    {
+        std::cin >> num >> k;
+        if (num < 0)
+        {
+            tree.Delete(-num);
+            std::cout << tree.FindStat(k) << std::endl;
+        }
+        else
+        {
+            tree.Add(num);
+            std::cout << tree.FindStat(k) << std::endl;
+        }
+    }
     return 0;
 }

@@ -37,13 +37,6 @@ struct TreeNode
     {
         return data_ < data;
     }
-    ~TreeNode()
-    {
-        if (left_)
-            delete left_;
-        if (right_)
-            delete right_;
-    }
 };
 template <typename T>
 class DefaultComparator
@@ -62,8 +55,35 @@ public:
     BinaryTree(Comparator cmp = Comparator()) : comparator_(cmp), root_(nullptr){};
     ~BinaryTree()
     {
-        if (root_)
-            delete root_;
+        TreeNodePtr cur = root_, tmp = nullptr;
+        std::stack<TreeNodePtr> stack;
+        while (true)
+        {
+            while (cur)
+            {
+                stack.push(cur);
+                cur = cur->left_;
+            }
+            while (!cur)
+            {
+                if (stack.empty())
+                    return;
+                cur = stack.top();
+                stack.pop();
+                if (cur->right_)
+                {
+                    tmp = cur;
+                    cur = cur->right_;
+                    tmp->right_ = nullptr;
+                    stack.push(tmp);
+                }
+                else
+                {
+                    delete cur;
+                    cur = nullptr;
+                }
+            }
+        }
     }
     void Insert(T data)
     {
