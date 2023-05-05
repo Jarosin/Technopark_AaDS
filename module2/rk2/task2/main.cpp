@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stack>
 #include <algorithm>
+#include <queue>
 template <typename T>
 struct TreeNode
 {
@@ -142,26 +143,30 @@ public:
             }
         }
     }
-    int findNodeHeight(TreeNodePtr node)
-    {
-        if (!node)
-            return 0;
-        int left_height = findNodeHeight(node->left_);
-        int right_height = findNodeHeight(node->right_);
-        if (left_height == 0)
-        {
-            return right_height + 1;
-        }
-        else if (right_height == 0)
-        {
-            return left_height + 1;
-        }
-        return std::min(left_height, right_height) + 1;
-    }
 
     int findHeight()
     {
-        return findNodeHeight(root_);
+        std::queue<TreeNodePtr> queue;
+        queue.push(root_);
+        int node_count;
+        int height = 1;
+        while (true)
+        {
+            node_count = queue.size();
+            while (node_count > 0)
+            {
+                TreeNodePtr node = queue.front();
+                queue.pop();
+                if (!node->left_ && !node->right_)
+                    return height;
+                if (node->left_)
+                    queue.push(node->left_);
+                if (node->right_)
+                    queue.push(node->right_);
+                node_count--;
+            }
+            height++;
+        }
     }
 
 private:
