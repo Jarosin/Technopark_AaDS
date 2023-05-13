@@ -292,6 +292,60 @@ private:
     int vertices_count_;
 };
 
+
+bool areEquelGraphs(const IGraph& l, const IGraph& r)
+{
+    if (l.VerticesCount() != r.VerticesCount())
+        return false;
+
+    // проверка ребер из вершины
+    for (int i = 0; i < l.VerticesCount(); i++)
+    {
+        std::vector<int> left_edges = l.GetNextVertices(i);
+        std::vector<int> right_edges = r.GetNextVertices(i);
+        bool flag = false;
+        for (auto &left_edge : left_edges) // может быть нарушен порядок, нужно это учесть
+        {
+            flag = false;
+            for (auto &right_edge : right_edges)
+            {
+                if (right_edge == left_edge)
+                {
+                    flag = true;
+                    right_edge = -1; // позволяет проверить количество ребер с одинаковым началом и концом
+                    break;
+                }
+            }
+            if (!flag)
+                return false;
+        }
+    }
+
+    // проверка ребер в вершину
+    for (int i = 0; i < l.VerticesCount(); i++)
+    {
+        std::vector<int> left_edges = l.GetPrevVertices(i);
+        std::vector<int> right_edges = r.GetPrevVertices(i);
+        bool flag = false;
+        for (auto &left_edge : left_edges) // может быть нарушен порядок, нужно это учесть
+        {
+            flag = false;
+            for (auto &right_edge : right_edges)
+            {
+                if (right_edge == left_edge)
+                {
+                    flag = true;
+                    right_edge = -1; // позволяет проверить количество ребер с одинаковым началом и концом
+                    break;
+                }
+            }
+            if (!flag)
+                return false;
+        }
+    }
+    return true;
+}
+
 int main()
 {
     return 0;
