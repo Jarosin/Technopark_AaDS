@@ -146,9 +146,8 @@ public:
         std::vector<int> res;
         for (int i = 0; i < vertices_count_; i++)
         {
-            if (graph_[vertex][i])
-                for (int j = 0; j < graph_[vertex][i]; j++) // добавляем по количеству
-                    res.push_back(i);                       // добавляем по номеру вершины
+            for (int j = 0; j < graph_[vertex][i]; j++) // добавляем по количеству
+                res.push_back(i);                       // добавляем по номеру вершины
         }
         return res;
     }
@@ -158,9 +157,8 @@ public:
         std::vector<int> res;
         for (int i = 0; i < graph_.size(); i++)
         {
-            if (graph_[i][vertex])
-                for (int j = 0; j < graph_[vertex][i]; j++)
-                    res.push_back(i);
+            for (int j = 0; j < graph_[i][vertex]; j++)
+                res.push_back(i);
         }
         return res;
     }
@@ -346,7 +344,38 @@ bool areEquelGraphs(const IGraph& l, const IGraph& r)
     return true;
 }
 
+bool test_graphs()
+{
+    ListGraph list_graph(5);
+    list_graph.AddEdge(0, 1);
+    list_graph.AddEdge(1, 2);
+    list_graph.AddEdge(2, 3);
+    list_graph.AddEdge(3, 4);
+    list_graph.AddEdge(4, 2);
+    MatrixGraph matrix_graph(list_graph);
+    SetGraph set_graph(list_graph);
+    ArcGraph arc_graph(list_graph);
+    std::vector<IGraph *> graphs;
+    graphs.push_back(&list_graph);
+    graphs.push_back(&matrix_graph);
+    graphs.push_back(&set_graph);
+    graphs.push_back(&arc_graph);
+    for (int i = 0; i < graphs.size(); i++)
+    {
+        for (int j = i + 1; j < graphs.size(); j++)
+        {
+            if (!areEquelGraphs(*graphs[i], *graphs[j]))
+                return false;
+        }
+    }
+    return true;
+}
+
 int main()
 {
+    if (test_graphs())
+        std::cout << "OK" << std::endl;
+    else
+        std::cout << "FAIL" << std::endl;
     return 0;
 }
