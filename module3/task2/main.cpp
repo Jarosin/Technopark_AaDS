@@ -89,36 +89,28 @@ public:
 
     int findShortestPathsAmount(int from, int to)
     {
-        if (from == to)
-            return 0;
         std::vector<int> path_lengths(VerticesCount(), -1);
-        std::vector<int> path_count(VerticesCount(), -1);
-        std::queue<int> path_top;
-        path_top.push(from);
+        std::vector<int> path_count(VerticesCount(), 0);
+        std::queue<int> vertices_queue;
+        vertices_queue.push(from);
         path_lengths[from] = 0;
         path_count[from] = 1;
-        while (!path_top.empty())
+        while (!vertices_queue.empty())
         {
-            int top = path_top.front();
-            path_top.pop();
-            std::vector<int> top_linked = GetNextVertices(top);
-            for (auto &elem : top_linked)
+            int current_node = vertices_queue.front();
+            vertices_queue.pop();
+            std::vector<int> adj_list = GetNextVertices(current_node);
+            for (auto &adjacent_node : adj_list)
             {
-                if (path_lengths[elem] > path_lengths[top] + 1)
+                if (path_lengths[adjacent_node] == path_lengths[current_node] + 1)
                 {
-                    path_count[elem] = path_count[top];
-                    path_lengths[elem] = path_lengths[top] + 1;
-                    path_top.push(elem);
+                    path_count[adjacent_node] += path_count[current_node];
                 }
-                else if (path_lengths[elem] == path_lengths[top] + 1)
+                if (path_lengths[adjacent_node] == -1)
                 {
-                    path_count[elem] += path_count[top];
-                }
-                else if (path_lengths[elem] == -1)
-                {
-                    path_top.push(elem);
-                    path_lengths[elem] = path_lengths[top] + 1;
-                    path_count[elem] = path_count[top];
+                    vertices_queue.push(adjacent_node);
+                    path_lengths[adjacent_node] = path_lengths[current_node] + 1;
+                    path_count[adjacent_node] = path_count[current_node];
                 }
             }
         }
