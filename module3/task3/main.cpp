@@ -54,11 +54,8 @@ public:
     // Добавление ребра от from к to.
     virtual void AddEdge(int from, int to, int weight) override
     {
-        std::pair<int, int> way_to(to, weight);
-        std::pair<int, int> way_from(from, weight);
-
-        graph_[from].push_back(way_to);
-        graph_[to].push_back(way_from);
+        graph_[from].emplace_back(to, weight);
+        graph_[to].emplace_back(from, weight);
     }
 
     virtual int VerticesCount() const override
@@ -68,13 +65,7 @@ public:
 
     virtual std::vector<std::pair<int, int>> GetNextVertices(int vertex) const override
     {
-        std::vector<std::pair<int, int>> res;
-        res.reserve(graph_[vertex].size());
-        for (auto &it : graph_[vertex])
-        {
-            res.push_back(it);
-        }
-        return res;
+        return graph_[vertex];
     }
     virtual std::vector<std::pair<int, int>> GetPrevVertices(int vertex) const override
     {
@@ -92,30 +83,27 @@ public:
         return res;
     }
     int FindShortestPathLength(int from, int to) {
-        std::priority_queue<std::pair<int, int>> path_queue;
-        std::vector<int> total_path_lengths(vertices_count_, -1);
+        std::set<std::pair<int, int>> path_set;
+        std::vector<int> total_path_lengths(vertices_count_, INT32_MAX);
+        total_path_lengths[from] = 0;
         std::pair<int, int> temp(from, 0);
-        path_queue.push(temp);
-        while (!path_queue.empty())
+        path_set.insert(temp);
+        while (!path_set.empty())
         {
-            auto path = path_queue.top();
-            path_queue.pop();
-
-            while (!path_queue.empty() && path_queue.top().first == path.first)
+            auto path = *path_set.begin();
+            path_set.erase(path);
+            auto paths_to = GetNextVertices(path.first);
+            for (auto path_to : paths_to)
             {
-                path.second = path_queue.top().second;
-                path_queue.pop();
-            }
-
-            if (total_path_lengths[path.first] == -1 || path.second < total_path_lengths[path.first])
-            {
-                total_path_lengths[path.first] = path.second;
-
-                auto paths_to = GetNextVertices(path.first);
-                for (auto path_to : paths_to)
+                path_to.second += total_path_lengths[path.first];
+                if (path_to.second < total_path_lengths[path_to.first])
                 {
-                    path_to.second += total_path_lengths[path.first];
-                    path_queue.push(path_to);
+                    temp.first = path_to.first;
+                    temp.second = total_path_lengths[path_to.first];
+                    if (path_set.find(temp) != path_set.end())
+                        path_set.erase(temp);
+                    path_set.insert(path_to);
+                    total_path_lengths[path_to.first] = path_to.second;
                 }
             }
         }
