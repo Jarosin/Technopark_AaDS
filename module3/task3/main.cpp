@@ -82,7 +82,8 @@ public:
         }
         return res;
     }
-    int FindShortestPathLength(int from, int to) {
+    int FindShortestPathLength(int from, int to)
+    {
         std::set<std::pair<int, int>> path_set;
         std::vector<int> total_path_lengths(vertices_count_, INT32_MAX);
         total_path_lengths[from] = 0;
@@ -109,6 +110,7 @@ public:
         }
         return total_path_lengths[to];
     }
+
 private:
     std::vector<std::vector<std::pair<int, int>>> graph_;
     int vertices_count_;
