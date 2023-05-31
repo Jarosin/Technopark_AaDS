@@ -87,23 +87,21 @@ public:
         std::set<std::pair<int, int>> path_set;
         std::vector<int> total_path_lengths(vertices_count_, INT32_MAX);
         total_path_lengths[from] = 0;
-        std::pair<int, int> temp(from, 0);
+        std::pair<int, int> temp(0, from);
         path_set.insert(temp);
         while (!path_set.empty())
         {
             auto path = *path_set.begin();
             path_set.erase(path);
-            auto paths_to = GetNextVertices(path.first);
+            auto paths_to = GetNextVertices(path.second);
             for (auto path_to : paths_to)
             {
-                path_to.second += total_path_lengths[path.first];
+                path_to.second += total_path_lengths[path.second];
                 if (path_to.second < total_path_lengths[path_to.first])
                 {
-                    temp.first = path_to.first;
-                    temp.second = total_path_lengths[path_to.first];
-                    if (path_set.find(temp) != path_set.end())
-                        path_set.erase(temp);
-                    path_set.insert(path_to);
+                    temp.second = path_to.first;
+                    temp.first = path_to.second;
+                    path_set.insert(temp);
                     total_path_lengths[path_to.first] = path_to.second;
                 }
             }
